@@ -1,0 +1,107 @@
+https://www.blackbox.ai/share/9f4c4da7-b0a8-47a6-991b-c8800084bd1b
+
+
+        #database setting --> later on insert them into another page and 
+        #just create connections into here 
+        if self.database.connect_to_db(): 
+            self.query_study_notes()
+            #self.add_to_database()
+        #connect db 
+        
+    
+    def query_study_notes(self):
+        query = QSqlQuery()
+        a = query.exec("SELECT * FROM study_notes")
+        print(a) #output true 
+        while query.next():
+            ders = query.value(0)
+            subject = query.value(1)
+            konu_adı = query.value(2)
+            note = query.value(3)
+            
+            print(f"Ders: {ders}, Subject: {subject}, Konu: {konu_adı}, Note: {note}")
+
+        # Bağlantıyı kapat
+        QSqlDatabase.database().close()
+
+i did not understand what is this working, when i removed this part nothing is changing so i removed; if i need later on or 
+if i realize what is working i can add this into my logic anyway 
+
+
+
+filtering part, i deleted these codes, because these are not working and i want to write them own myself
+#filtering 
+        #make this in morning because it will take time and you have to change logic in here 
+    def on_ders_selection_changed(self):
+        # Ders seçimi değiştiğinde tetiklenecek işlemleri burada gerçekleştirin
+        selected_ders = self.lecture_combo_box.currentText()
+
+        # Eğer seçilen dersi kullanarak konu ve notları filtrelemek istiyorsanız,
+        # bu değeri kullanarak yeni bir sorgu yapabilir ve sonuçları alabilirsiniz.
+        # Örneğin:
+        konu_values = self.get_filtered_values_from_database("konu", "ders", selected_ders)
+        not_values = self.get_filtered_values_from_database("not", "ders", selected_ders)
+
+        # Filtrelenmiş değerleri ComboBox'lara ekleyin
+        self.subject_combo_box.clear()
+        self.subject_combo_box.addItems(konu_values)
+
+        self.note_name_combo_box.clear()
+        self.note_name_combo_box.addItems(not_values)
+
+    #filter part
+    def get_filtered_values_from_database(self, column_name, filter_column, filter_value):
+        values = []
+
+        query = QSqlQuery()
+        query.exec(f"SELECT DISTINCT {column_name} FROM study_notes WHERE {filter_column} = '{filter_value}'")
+
+        while query.next():
+            value = query.value(0)
+            values.append(value)
+
+        return values
+    
+    def update(self):
+        self.database.update_combo_box()
+        
+
+
+************************************************************************************************
+filtreleme kısmıyla alakalı chatGPT den aldığım kod yapısı 
+def get_values_from_database(self, field_name, filter_value=None):
+    query = QSqlQuery()
+    if field_name == "ders":
+        query_str = "SELECT DISTINCT ders FROM subject"
+    elif field_name == "subject":
+        if filter_value:
+            query_str = "SELECT DISTINCT subject FROM subject WHERE ders = ?"
+            query.addBindValue(filter_value)
+        else:
+            query_str = "SELECT DISTINCT subject FROM subject"
+    elif field_name == "konu_adi":
+        if filter_value:
+            query_str = "SELECT DISTINCT konu_adi FROM subject WHERE subject = ?"
+            query.addBindValue(filter_value)
+        else:
+            query_str = "SELECT DISTINCT konu_adi FROM subject"
+    else:
+        return []  # Geçersiz alan adı
+
+    if not query.prepare(query_str):
+        print("SQL sorgusu hazırlanırken bir hata oluştu:", query.lastError().text())
+        return []
+
+    if not query.exec():
+        print("SQL sorgusu çalıştırılırken bir hata oluştu:", query.lastError().text())
+        return []
+
+    values = []
+    while query.next():
+        values.append(query.value(0))
+    return values
+
+doğruluğu hakkında en ufak bilgim ve fikrim yok 
+
+
+        self.window.study_notes_graphics_view.fitInView(scene.sceneRect(),aspectRadioMode=Qt.AspectRatioMode.KeepAspectRatio)
